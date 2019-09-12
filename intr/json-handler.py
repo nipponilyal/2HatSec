@@ -77,12 +77,15 @@ def inject_data():
 host="redis"
 q = rediswq.RedisWQ(name="job", host="redis")
 
+# Each pod will pull a task (file name in the nfs server) and will execute until redis is empty
 while not q.empty():
   item = q.lease(lease_secs=10, block=True, timeout=2) 
   if item is not None:
+    # itemstr is the a chunk of the main data.json after the split
     itemstr = item.decode("utf-8")
     print("Working on chunk" + itemstr)
     
+    # Path to the file on the mounted volume
     json_path = '/opt/' + itemstr
     db_host = os.environ['db_host']
     db_port = os.environ['db_port']
@@ -91,7 +94,7 @@ while not q.empty():
     db_name = os.environ['db_name']
 
     datafile = open(json_path, "r")
-
+    # For each line in the file load the json and inject into the database
     for line in datafile:
         
         # read from the json file
