@@ -1,4 +1,5 @@
 #! /bin/bash
+set -e
 
 docker build . -t handler
 kubectl apply -f deployment/handler.yaml

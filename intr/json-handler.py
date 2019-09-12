@@ -2,6 +2,8 @@
 import mysql.connector
 import os
 import json
+import time
+import rediswq
 
 def get_db_connection():
     try:
@@ -72,25 +74,37 @@ def inject_data():
 
 
 # Main
+host="redis"
+q = rediswq.RedisWQ(name="job", host="redis")
 
-json_path = os.environ['json_path']
-db_host = os.environ['db_host']
-db_port = os.environ['db_port']
-db_user = os.environ['db_user']
-db_pass = os.environ['db_pass']
-db_name = os.environ['db_name']
-
-datafile = open(json_path, "r")
-
-for line in datafile:
+while not q.empty():
+  item = q.lease(lease_secs=10, block=True, timeout=2) 
+  if item is not None:
+    itemstr = item.decode("utf-8")
+    print("Working on chunk" + itemstr)
     
-    # read from the json file
-    json_dict = json.loads(line)
-    
-    # insert json into db
-    inject_data()
+    json_path = '/opt/' + itemstr
+    db_host = os.environ['db_host']
+    db_port = os.environ['db_port']
+    db_user = os.environ['db_user']
+    db_pass = os.environ['db_pass']
+    db_name = os.environ['db_name']
 
-datafile.close()
+    datafile = open(json_path, "r")
+
+    for line in datafile:
+        
+        # read from the json file
+        json_dict = json.loads(line)
+        
+        # insert json into db
+        inject_data()
+
+    datafile.close()
+
+    q.complete(item)
+  else:
+    print("Waiting for work")
 
 
 
