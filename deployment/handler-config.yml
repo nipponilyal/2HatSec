@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  db_host: mysql
+  db_name: data
+  db_port: "3306"
+  db_user: root
+  json_path: /opt/data.json
+kind: ConfigMap
+metadata:
+  name: handler
+  namespace: default

@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: handler
+spec:
+  template:
+    spec:
+      containers:
+      - name: handler
+        image: handler
+        envFrom:
+        - configMapRef:
+            name: handler
+            optional: false
+        - secretRef:
+            name: handler
+            optional: false
+        imagePullPolicy: Never
+        volumeMounts:
+        - name: nfs-json-data
+          mountPath: /opt
+      restartPolicy: Never
+      volumes:
+      - name: nfs-json-data
+        persistentVolumeClaim:
+          claimName: nfs-json-data
+  backoffLimit: 4
