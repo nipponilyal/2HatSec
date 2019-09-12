@@ -1,11 +1,11 @@
 ### Solution stack
 
 1. Containers (Docker)
-2. Kubernetes - jobs
-3. Rancher 
+2. Kubernetes - Using multiple parallel worker processes
+3. Rancher - Wrapper around kubernetes (UI)
 4. Python
-5. mysql 
-6. redis
+5. mysql - Injecting the json data into this db
+6. redis - Acting as a worker queue for the k8s jobs
 
 ### folder structure 
 
@@ -23,3 +23,9 @@
 3. Using redis as my work queue i'm adding the files names as tasks into redis (using redis-cli)
 4. From the migration running run.sh to migrate and create the relevant tables
 5. From the root folder - `run.sh` to create 3 pods that will start consuming the queue (redis) and adding the data to the mysql db
+6. db structure can be found in : `migrations/scritps/V1_moc-json.sql`
+
+### Chalanges & TODOs to complete the project
+
+1. Setting up a the nfs server so that it will be possible to mount the volume to all the workers
+2. The split of the data.json file is manual - Can be automated via another dedicated service that will split and input the result to redis
